@@ -5,13 +5,36 @@ from models import Warehouse_params
 import config
 from apis import get_credit_rate
 
-class Calculator:
 
+class Calculator:
+    """
+    Модуль расчета метрик и финансовой оценки складского процесса.
+    Принимает результаты почасовой симуляции и входные параметры,
+    возвращает операционные (OPEX), инвестиционные (CAPEX) показатели,
+    метрики производительности и минимальную требуемую доходность проекта.
+    """
     def calculate(self,
                   params: Warehouse_params,
                   data: pd.DataFrame,
                   conf=config) -> dict:
+        """
+        Вычисляет базовые метрики и финансовые показатели для одного сценария.
 
+        Args:
+            params: Конфигурация склада.
+            data: DataFrame с результатами симуляции.
+            conf: Глобальные настройки (SIMULATION_DAYS).
+
+        Returns:
+            dict: Словарь метрик:
+                - 'opex': Затраты на персонал за период симуляции (руб.)
+                - 'capex': Стоимость закупки парка роботов (руб.)
+                - 'avg_delayed_orders': Среднее кол-во  заказов (шт.)
+                - 'max_delayed_orders': Максимальное кол-во задержанных заказов (шт.)
+                - 'avg_picks_per_hour': Ср. скорость одного комплектовщика (пиков/час)
+                - 'time_per_pick': Ср. время отбора одного пика (сек.)
+                - 'throughout': Ср. суточная пропускная способность (пиков/день)
+        """
         metrics = {}
 
         opex = (
@@ -36,7 +59,6 @@ class Calculator:
         time_per_pick = 3600 / avg_picks_per_hour
         metrics['time_per_pick'] = time_per_pick
 
-
         throughout = data['full_capacity'].mean() * 24
         metrics['throughout'] = throughout
 
@@ -44,7 +66,19 @@ class Calculator:
 
     def compute_min_monthly_profit(self,
                                    data: pd.DataFrame,
-                                   conf=config):
+                                   conf=config) -> float:
+        """
+        Рассчитывает минимальную месячную прибыль, необходимую для
+        окупаемости проекта.
+
+        Args:
+            data: DataFrame с рассчитанными эффектами.
+            conf: Конфигурация проекта (используется для перевода дней в годы).
+
+        Returns:
+            float: Минимальная требуемая месячная прибыль (руб.) с учётом
+                   текущей кредитной ставки и сложного процента.
+        """
         rate = get_credit_rate()
         effect = data.loc['capex']['effect'] + data.loc['opex']['effect']
         years = conf.SIMULATION_DAYS / 365
