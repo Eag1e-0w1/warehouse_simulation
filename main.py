@@ -37,5 +37,6 @@ if __name__ == '__main__':
     df['effect'] = df['amr'] - df['no_amr']
     min_monthly_profit = ceil(calc.compute_min_monthly_profit(df))
 
-    print(df)
-    print(min_monthly_profit)
+    print('Сравнение двух сценариев:')
+    print(df, end='\n\n')
+    print(f'Величина среднемесячной прибыли для покрытия расходов на роботизацию: {min_monthly_profit} руб.')
