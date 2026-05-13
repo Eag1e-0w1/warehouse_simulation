@@ -1,3 +1,3 @@
-PATH = './dump/data.xlsx'
-SIMULATION_DAYS = 30 * 60
-PEAK_RATIO = 1.3
+PATH = './dump/data.xlsx' # источник данных
+SIMULATION_DAYS = 30 * 60 # 5-летний горизонт
+PEAK_RATIO = 1.3 # +30% нагрузки на комплектовщиков в пиковые часы
