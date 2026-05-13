@@ -37,28 +37,35 @@ class Calculator:
         """
         metrics = {}
 
+        # OPEX
         opex = (
                 (params.average_staff_salary * params.inbound_outbound_staff) +
                 (params.average_drivers_salary * params.drivers) +
                 (params.average_pickers_salary * params.pickers)) / 30 * conf.SIMULATION_DAYS
         metrics['opex'] = opex
 
+        # CAPEX
         capex = params.amr_cost * params.amr_num
         metrics['capex'] = capex
 
+        # Среднее количество задержанных заказов
         peaks_per_order = ceil(params.order_picking_volume / params.shipping_stores)
         avg_delayed_orders = ceil(mean(data['queue'] / peaks_per_order))
         metrics['avg_delayed_orders'] = avg_delayed_orders
 
+        # Максимальное количество задержанных заказов
         max_delayed_orders = ceil(data['queue'].max() / peaks_per_order)
         metrics['max_delayed_orders'] = max_delayed_orders
 
+        # Среднее количество пиков в час
         avg_picks_per_hour = mean(data['full_capacity'] / params.pickers)
         metrics['avg_picks_per_hour'] = avg_picks_per_hour
 
+        # Скорость одного пика
         time_per_pick = 3600 / avg_picks_per_hour
         metrics['time_per_pick'] = time_per_pick
 
+        # Пропускная способность
         throughout = data['full_capacity'].mean() * 24
         metrics['throughout'] = throughout
 
